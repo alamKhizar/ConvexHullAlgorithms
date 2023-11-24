@@ -1,6 +1,7 @@
 package SCD.GUI_TASK.ConvexHullAlgorithms;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class HomeScreen extends JFrame {
@@ -62,10 +63,14 @@ public class HomeScreen extends JFrame {
 
             } else if (choice == 1) {
                 // Open the ConvexHullVisualization class
-                new SlopeMethod();
+              SlopeMethod slopeMethod = new SlopeMethod();
+                slopeMethod.setVisible(true);
+
+
             }else if (choice == 2) {
                 // Open the ConvexHullVisualization class
-                new ConvexHullVisualization();
+                LineIntersectionUsingVectorProduct LineIntersectionUsingVectorProduct = new LineIntersectionUsingVectorProduct();
+                LineIntersectionUsingVectorProduct.setVisible(true);
             }
 
         });
@@ -75,6 +80,7 @@ public class HomeScreen extends JFrame {
         BRUTE_FORCE_BUTTON.setBackground(new Color(0, 19, 23));
         BRUTE_FORCE_BUTTON.setFont(new Font("AERIAL", Font.BOLD, 15));
         BRUTE_FORCE_BUTTON.setForeground(new Color(181, 255, 0));
+        BRUTE_FORCE_BUTTON.setBorder(new LineBorder(new Color(0, 19, 23), 50, true));
         BRUTE_FORCE_BUTTON.setBorderPainted(false);
         BRUTE_FORCE_BUTTON.addActionListener(e -> {
             String[] options = {"Enter Point Method", "Touch Method"};

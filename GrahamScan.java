@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Stack;
-
+//graham
 public class GrahamScan extends JFrame {
     private ArrayList<Point> dataPoints;
     private long startTime;

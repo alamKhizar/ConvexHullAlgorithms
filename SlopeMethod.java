@@ -12,14 +12,12 @@ public class SlopeMethod extends JFrame {
     private JPanel drawingPanel;
     private JButton startButton;
     private JButton clearButton;
-    private ArrayList<Integer> xPoints;
-    private ArrayList<Integer> yPoints;
+    private ArrayList<Point> points;
     private boolean showLines;
     private boolean linesIntersect;
 
     public SlopeMethod() {
-        xPoints = new ArrayList<>();
-        yPoints = new ArrayList<>();
+        points = new ArrayList<>();
         showLines = false;
         linesIntersect = false;
 
@@ -33,24 +31,17 @@ public class SlopeMethod extends JFrame {
                 super.paintComponent(g);
 
                 if (showLines) {
-                    for (int i = 0; i < xPoints.size() - 1; i++) {
-                        int x1 = xPoints.get(i);
-                        int y1 = yPoints.get(i);
-
-                        int x2 = xPoints.get(i + 1);
-                        int y2 = yPoints.get(i + 1);
-
-                        g.setColor(Color.YELLOW);
-                        g.drawLine(x1, y1, x2, y2);
-                        i++;
+                    g.setColor(Color.YELLOW);
+                    for (int i = 0; i < points.size() - 1; i += 2) {
+                        Point p1 = points.get(i);
+                        Point p2 = points.get(i + 1);
+                        g.drawLine(p1.x, p1.y, p2.x, p2.y);
                     }
                 }
 
-                for (int i = 0; i < xPoints.size(); i++) {
-                    int x = xPoints.get(i);
-                    int y = yPoints.get(i);
-                    g.setColor(Color.RED);
-                    g.fillOval(x, y, 7, 7);
+                g.setColor(Color.RED);
+                for (Point point : points) {
+                    g.fillOval(point.x, point.y, 7, 7);
                 }
             }
         };
@@ -59,55 +50,48 @@ public class SlopeMethod extends JFrame {
         drawingPanel.addMouseListener(new MyMouseListener());
         add(drawingPanel, BorderLayout.CENTER);
 
-        startButton = new JButton("Check Intersections");
-        startButton.setFocusable(false);
-        startButton.setBackground(new Color(0, 19, 23));
-        startButton.setFont(new Font("Arial", Font.BOLD, 15));
-        startButton.setForeground(new Color(181, 255, 0));
-        startButton.setBorderPainted(false);
-
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showLines = true;
-                linesIntersect = checkForIntersections();
-
-                if (linesIntersect) {
-                    JOptionPane.showMessageDialog(SlopeMethod.this, "Intersect");
-                } else {
-                    JOptionPane.showMessageDialog(SlopeMethod.this, "Lines don't intersect");
-                }
-                drawingPanel.repaint();
-                printPoints();
-            }
-        });
+        startButton = createButton("Check Intersections", this::startButtonAction);
         add(startButton, BorderLayout.SOUTH);
 
-        clearButton = new JButton("Clear Points");
-        clearButton.setFocusable(false);
-        clearButton.setBackground(new Color(0, 19, 23));
-        clearButton.setFont(new Font("Arial", Font.BOLD, 15));
-        clearButton.setForeground(new Color(181, 255, 0));
-        clearButton.setBorderPainted(false);
-
-        clearButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                clearPoints();
-                drawingPanel.repaint();
-                JOptionPane.showMessageDialog(SlopeMethod.this, "Points cleared");
-            }
-        });
-
+        clearButton = createButton("Clear Points", this::clearButtonAction);
         add(clearButton, BorderLayout.NORTH);
 
         pack();
         setLocationRelativeTo(null);
     }
 
+    private JButton createButton(String text, ActionListener actionListener) {
+        JButton button = new JButton(text);
+        button.setFocusable(false);
+        button.setBackground(new Color(0, 19, 23));
+        button.setFont(new Font("Arial", Font.BOLD, 15));
+        button.setForeground(new Color(181, 255, 0));
+        button.setBorderPainted(false);
+        button.addActionListener(actionListener);
+        return button;
+    }
+
+    private void clearButtonAction(ActionEvent e) {
+        clearPoints();
+        drawingPanel.repaint();
+        JOptionPane.showMessageDialog(this, "Points cleared");
+    }
+
+    private void startButtonAction(ActionEvent e) {
+        showLines = true;
+        linesIntersect = checkForIntersections();
+
+        if (linesIntersect) {
+            JOptionPane.showMessageDialog(this, "Intersect");
+        } else {
+            JOptionPane.showMessageDialog(this, "Lines don't intersect");
+        }
+        drawingPanel.repaint();
+        printPoints();
+    }
+
     private void clearPoints() {
-        xPoints.clear();
-        yPoints.clear();
+        points.clear();
         showLines = false;
         linesIntersect = false;
     }
@@ -116,11 +100,8 @@ public class SlopeMethod extends JFrame {
         @Override
         public void mouseClicked(MouseEvent e) {
             super.mouseClicked(e);
-            if (xPoints.size() < 4) {
-                int x = e.getX();
-                int y = e.getY();
-                xPoints.add(x);
-                yPoints.add(y);
+            if (points.size() < 4) {
+                points.add(e.getPoint());
                 drawingPanel.repaint();
             } else {
                 JOptionPane.showMessageDialog(SlopeMethod.this, "You can only place four points.");
@@ -130,52 +111,54 @@ public class SlopeMethod extends JFrame {
 
     private void printPoints() {
         System.out.println("Stored Points:");
-        for (int i = 0; i < xPoints.size(); i++) {
-            System.out.println("(" + xPoints.get(i) + ", " + yPoints.get(i) + ")");
+        for (Point point : points) {
+            System.out.println("(" + point.x + ", " + point.y + ")");
         }
     }
 
     private boolean checkForIntersections() {
-        if (xPoints.size() < 4) {
+        if (points.size() < 4) {
             return false;
         } else {
-            double l1slope = calculateSlope(xPoints.get(0), yPoints.get(0), xPoints.get(1), yPoints.get(1));
-            double l2slope = calculateSlope(xPoints.get(2), yPoints.get(2), xPoints.get(3), yPoints.get(3));
+            // Get the coordinates of the four points
+            int x1 = points.get(0).x;
+            int y1 = points.get(0).y;
+            int x2 = points.get(1).x;
+            int y2 = points.get(1).y;
+            int x3 = points.get(2).x;
+            int y3 = points.get(2).y;
+            int x4 = points.get(3).x;
+            int y4 = points.get(3).y;
 
-            // Round off the slope values
-            long roundedL1Slope = Math.round(l1slope);
-            long roundedL2Slope = Math.round(l2slope);
+            // Calculate slopes
+            double m1 = (double) (y2 - y1) / (x2 - x1);
+            double m2 = (double) (y4 - y3) / (x4 - x3);
 
-            if (roundedL1Slope != roundedL2Slope) {
-                return true; // Lines are not parallel, they may intersect
-            } else {
-                // Check if the lines have different y-intercepts
-                double l1Intercept = calculateIntercept(xPoints.get(0), yPoints.get(0), l1slope);
-                double l2Intercept = calculateIntercept(xPoints.get(2), yPoints.get(2), l2slope);
+            // Calculate y-intercepts
+            double b1 = y1 - m1 * x1;
+            double b2 = y3 - m2 * x3;
 
-                // Round off the intercept values
-                long roundedL1Intercept = Math.round(l1Intercept);
-                long roundedL2Intercept = Math.round(l2Intercept);
+            // Check for intersection
+            double intersectionX = (b2 - b1) / (m1 - m2);
+            double intersectionY = m1 * intersectionX + b1;
 
-                return roundedL1Intercept != roundedL2Intercept;
-            }
+            return intersectionX >= Math.min(x1, x2) && intersectionX <= Math.max(x1, x2)
+                    && intersectionX >= Math.min(x3, x4) && intersectionX <= Math.max(x3, x4)
+                    && intersectionY >= Math.min(y1, y2) && intersectionY <= Math.max(y1, y2)
+                    && intersectionY >= Math.min(y3, y4) && intersectionY <= Math.max(y3, y4);
         }
     }
 
-    private double calculateIntercept(int x, int y, double slope) {
-        return y - slope * x;
+
+    private double calculateIntercept(Point point, double slope) {
+        return point.y - slope * point.x;
     }
 
-    private double calculateSlope(int x1, int y1, int x2, int y2) {
-        return (double) (y2 - y1) / (x2 - x1);
+    private double calculateSlope(Point p1, Point p2) {
+        return (double) (p2.y - p1.y) / (p2.x - p1.x);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new SlopeMethod().setVisible(true);
-            }
-        });
+        SwingUtilities.invokeLater(() -> new SlopeMethod().setVisible(true));
     }
 }

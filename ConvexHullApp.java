@@ -1,5 +1,7 @@
 package SCD.GUI_TASK.ConvexHullAlgorithms;
 
+//monotone
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

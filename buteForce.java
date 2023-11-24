@@ -11,13 +11,14 @@ import java.util.ArrayList;
 
 public class buteForce extends JFrame {
     private boolean drawRedLines = true;
-    JLabel l,seconds,milliseconds;
+    JLabel l, seconds, milliseconds;
+    boolean convexHullCompleted = false;
     private ArrayList<Integer> xArray;
     private ArrayList<Integer> yArray;
     private ArrayList<Point> dataPoints;
     private long startTime;
     private int animationStep = 0;
-    int count =0;
+    int count = 0;
     private Timer animationTimer;
 
     public buteForce(ArrayList<Integer> xArray, ArrayList<Integer> yArray) {
@@ -35,38 +36,38 @@ public class buteForce extends JFrame {
         setLocationRelativeTo(null);
 
         JLabel l = new JLabel("0");
-        l.setBounds(300,0,200,80);
+        l.setBounds(300, 0, 200, 80);
         l.setFont(new Font("AERIAL", Font.BOLD, 25));
         l.setForeground(new Color(181, 255, 0));
 
         JLabel t = new JLabel("Total Time ");
-        t.setBounds(50,355,200,80);
+        t.setBounds(50, 355, 200, 80);
         t.setFont(new Font("AERIAL", Font.BOLD, 18));
         t.setForeground(new Color(181, 255, 0));
 
         JLabel milli = new JLabel("Milliseconds : ");
-        milli.setBounds(50,375,200,80);
+        milli.setBounds(50, 375, 200, 80);
         milli.setFont(new Font("AERIAL", Font.BOLD, 14));
         milli.setForeground(new Color(181, 255, 0));
 
-         milliseconds = new JLabel("0");
-        milliseconds.setBounds(170,375,200,80);
+        milliseconds = new JLabel("0");
+        milliseconds.setBounds(170, 375, 200, 80);
         milliseconds.setFont(new Font("AERIAL", Font.BOLD, 14));
         milliseconds.setForeground(new Color(181, 255, 0));
 
         JLabel sec = new JLabel("Seconds : ");
-        sec.setBounds(50,395,200,80);
+        sec.setBounds(50, 395, 200, 80);
         sec.setFont(new Font("AERIAL", Font.BOLD, 14));
         sec.setForeground(new Color(181, 255, 0));
 
 
         seconds = new JLabel("0");
-        seconds.setBounds(170,395,200,80);
+        seconds.setBounds(170, 395, 200, 80);
         seconds.setFont(new Font("AERIAL", Font.BOLD, 14));
         seconds.setForeground(new Color(181, 255, 0));
 
         JButton back = new JButton("Back");
-        back.setBounds(400,395,90,25);
+        back.setBounds(400, 395, 90, 25);
         back.setFocusable(false);
         back.setBackground(new Color(0, 19, 23));
         back.setFont(new Font("AERIAL", Font.BOLD, 15));
@@ -111,9 +112,9 @@ public class buteForce extends JFrame {
                     long endTime = System.currentTimeMillis();  // Record the end time
                     long elapsedTime = endTime - startTime;
 
-                    System.out.println("Convex Hull Computation Time: " + elapsedTime + " milliseconds or " + (elapsedTime)/1000 + " Seconds ");
+                    System.out.println("Convex Hull Computation Time: " + elapsedTime + " milliseconds or " + (elapsedTime) / 1000 + " Seconds ");
                     milliseconds.setText(String.valueOf(elapsedTime) + "  milliseconds");
-                    seconds.setText(String.valueOf((elapsedTime)/1000) + "  seconds");
+                    seconds.setText(String.valueOf((elapsedTime) / 1000) + "  seconds");
 
 
                 }
@@ -155,9 +156,9 @@ public class buteForce extends JFrame {
             g.fillOval(x - 3, y - 3, 6, 6);
         }
 
-        boolean convexHullCompleted = false;
+
         Graphics2D g2d = (Graphics2D) g;
-        int  lineAlpha = 255;
+        int lineAlpha = 255;
 
         for (int i = 0; i < numPointsToInclude; i++) {
             for (int j = i + 1; j < numPointsToInclude; j++) {
@@ -171,7 +172,7 @@ public class buteForce extends JFrame {
                         Point p3 = dataPoints.get(k);
                         int crossProduct = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
 
-                        g2d.setColor(new Color(255, 0, 0, 8));
+                        g2d.setColor(new Color(255, 0, 0, 100));
                         g.drawLine(50 + p1.x * 5, 350 - p1.y * 3, 50 + p2.x * 5, 350 - p2.y * 3);
                         if (crossProduct > 0) {
                             isOnRight = false;
@@ -189,8 +190,11 @@ public class buteForce extends JFrame {
                     g2d.setColor(new Color(231, 255, 0, 255));
                     g.drawLine(50 + p1.x * 5, 350 - p1.y * 3, 50 + p2.x * 5, 350 - p2.y * 3);
                 }
+
+
             }
         }
+
 
 
         // Check if convex hull is completed
@@ -199,16 +203,42 @@ public class buteForce extends JFrame {
         }
 
         // If convex hull is completed, remove the red lines
-//        if (convexHullCompleted) {
-//            for (int i = 0; i < numPointsToInclude; i++) {
-//                for (int j = i + 1; j < numPointsToInclude; j++) {
-//                    Point p1 = dataPoints.get(i);
-//                    Point p2 = dataPoints.get(j);
-//                    g.setColor(new Color(1, 28, 35));  // Set color matching your background
+        if (convexHullCompleted) {
+            for (int i = 0; i < numPointsToInclude; i++) {
+                for (int j = i + 1; j < numPointsToInclude; j++) {
+                    Point p1 = dataPoints.get(i);
+                    Point p2 = dataPoints.get(j);
+                    boolean isOnLeft = true;
+                    boolean isOnRight = true;
+
+                    for (int k = 0; k < numPointsToInclude; k++) {
+                        if (k != i && k != j) {
+                            Point p3 = dataPoints.get(k);
+                            int crossProduct = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x);
+
+                            g2d.setColor(new Color(0, 19, 23, 100));
+                            g.drawLine(50 + p1.x * 5, 350 - p1.y * 3, 50 + p2.x * 5, 350 - p2.y * 3);
+                            if (crossProduct > 0) {
+                                isOnRight = false;
+                            } else if (crossProduct < 0) {
+                                isOnLeft = false;
+                            }
+
+                            if (!isOnLeft && !isOnRight) {
+                                break;
+                            }
+                        }
+                    }
+                    if (isOnLeft || isOnRight) {
+                        g2d.setColor(new Color(231, 255, 0, 255));
+//                        g2d.setStroke(new BasicStroke(4));
+                        g2d.drawLine(50 + p1.x * 5, 350 - p1.y * 3, 50 + p2.x * 5, 350 - p2.y * 3);
+                    }
+//                    g.setColor(new Color(3, 192, 241));  // Set color matching your background
 //                    g.drawLine(50 + p1.x * 5, 350 - p1.y * 3, 50 + p2.x * 5, 350 - p2.y * 3);
-//                }
-//            }
-//        }
+                }
+            }
+        }
 
 
         for (int i = 0; i < dataPoints.size(); i++) {
